@@ -1,0 +1,44 @@
+trigger:
+- dev
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: DockerInstaller@0
+    inputs:
+      dockerVersion: '17.09.0-ce'
+
+  - task: Bash@3
+    displayName: Docker Build
+    inputs:
+      targetType: 'inline'
+      script:
+        'docker build . -t personalimage'
+
+  - task: Bash@3
+    displayName: Docker run
+    inputs:
+      targetType: 'inline'
+      script: 'docker run -d --name TruffleHog personalimage:latest'
+
+  - task: Bash@3
+    displayName: Docker exec
+    inputs:
+      targetType: 'inline'
+      script: |
+        pwd
+        ls -ltr
+        docker ps
+        pwd
+        cd /home/vsts/work/_temp/
+        'docker exec -it TruffleHog trufflehog --entropy=NO --regex --json https://github.com/lakshayarora476/truffleHog.git'
+
+        
+        
+        
+        
+        
+        
+        #'cat output.txt |grep -oE “\”stringsFound\”\:.[.\”]}”|sed -e “s/,\”.]//” -e “s/}//”|sed “s/\”stringsFound\”://”|grep -o “\”.\””|awk -F “,” ‘{ for(i=1;i<=NF;i++) print $i}’'
+
